@@ -1,0 +1,26 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: metrics-role
+rules:
+- apiGroups: ["external.metrics.k8s.io"]
+  resources: [{{ .Values.serviceAccount.externalMetrics }}]
+  verbs: ["get","watch","list"]
+- apiGroups: ["weblogic.oracle"]
+  resources: ["domains"]
+  verbs: ["get","list","watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: metrics-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: metrics-role
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.serviceAccount.name }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
